@@ -66,12 +66,14 @@ int command_ctor(Command* command, char** command_text, size_t argument_count) {
     command->argument_count = argument_count;
     command->command = command_text[0];
 
-    command->argument_list = (char**) calloc(argument_count, sizeof(char*));
+    command->argument_list = (char**) calloc(argument_count + 1, sizeof(char*));
     if (!(command->argument_list)) return 1;
 
     for (size_t i = 0; i < argument_count; i++) {
         command->argument_list[i] = command_text[i+1];
     }
+
+    // command->argument_list[argument_count] = NULL; // Make null terminated argument array
 
     return 0;
 }

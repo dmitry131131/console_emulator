@@ -3,6 +3,6 @@
 
 #include "common.h"
 
-
+int execute_commands(CommandsArray* commands_array);
 
 #endif

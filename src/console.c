@@ -6,7 +6,9 @@
 #include <readline/readline.h>
 #include <readline/history.h>
 
+#include "console.h"
 #include "parser.h"
+#include "exec.h"
 
 const size_t INITIAL_CAPACITY = 5;
 const size_t MAX_DIR_LEN      = 2048;
@@ -21,6 +23,7 @@ static int command_line_ctor(CommandLine* cmd, size_t capacity);
 static int command_line_dtor(CommandLine* cmd);
 static int command_line_dump(CommandLine* cmd);
 static int read_command(CommandLine* cmd, char* line);
+static int command_line_realloc(CommandLine* cmd);
 
 int console() {
     CommandLine cmd = {};
@@ -29,7 +32,7 @@ int console() {
     while (1) {
         command_line_ctor(&cmd, INITIAL_CAPACITY);
 
-        const char* current_dir = getcwd(NULL, MAX_DIR_LEN);
+        char* current_dir = getcwd(NULL, MAX_DIR_LEN);
 
         char* line = readline(strcat(current_dir, " >> ")); // get line from console
         add_history(line);
@@ -38,7 +41,8 @@ int console() {
         read_command(&cmd, line);                               // tokenize command line
         parse_commands(cmd.argc, cmd.argv, &commands_array);    // parse command line
 
-        commands_array_dump(&commands_array);
+        // commands_array_dump(&commands_array);
+        execute_commands(&commands_array);
 
         commands_array_dtor(&commands_array);   // Destruct all data structures of curren command line
         command_line_dtor(&cmd);
@@ -98,12 +102,20 @@ static int read_command(CommandLine* cmd, char* line) {
         if (!current_token) break;
 
         if (cmd->argc >= cmd->capacity - 1) {
-            cmd->argv = (char**) realloc(cmd->argv, cmd->capacity * sizeof(char*) * 2);
-            assert(cmd->argv);
-            
-            cmd->capacity *= 2;
+            command_line_realloc(cmd);
         }
     }
+
+    return 0;
+}
+
+static int command_line_realloc(CommandLine* cmd) {
+    assert(cmd);
+
+    cmd->argv = (char**) realloc(cmd->argv, cmd->capacity * sizeof(char*) * 2);
+    assert(cmd->argv);
+
+    cmd->capacity *= 2;
 
     return 0;
 }

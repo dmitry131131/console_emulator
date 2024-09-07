@@ -3,6 +3,6 @@
 
 #include "common.h"
 
-int parse_commands(int argc, char* argv[], CommandsArray* commands_array);
+int parse_commands(size_t argc, char* argv[], CommandsArray* commands_array);
 
 #endif
