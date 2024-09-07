@@ -27,16 +27,16 @@ int parse_commands(int argc, char* argv[], CommandsArray* commands_array) {
     assert(argv);
     assert(commands_array);
 
-    assert(argc >= 2);  // TODO Make normal handling of few args error
+    assert(argc >= 1);  // TODO Make normal handling of few args error
 
     StartPositionArray command_start_positions = start_position_array_ctor((size_t) argc);
 
     command_start_positions.array[command_start_positions.current_pointer].start = 0;  
-    printf("ARGC: %d\n", argc);
+    
     for (size_t i = 0; i < (size_t) argc; i++) {
         if (!strcmp(argv[i], AND_COMMAND_TOKEN)) {
-            command_start_positions.array[command_start_positions.current_pointer].end = i;
-            printf("HUI\n");
+            command_start_positions.array[command_start_positions.current_pointer].end = i - 1;
+     
             command_start_positions.current_pointer++;
             command_start_positions.array[command_start_positions.current_pointer].start = i + 1;
         }
@@ -48,15 +48,11 @@ int parse_commands(int argc, char* argv[], CommandsArray* commands_array) {
         assert(0);  // TODO add normal handling of commands array ctor error
     }
 
-    printf("%lu\n", command_start_positions.current_pointer);
-
     for (size_t i = 0; i < command_start_positions.current_pointer; i++) {
         commands_array_add( commands_array,
                             argv + command_start_positions.array[i].start, 
                             command_start_positions.array[i].end - command_start_positions.array[i].start);
     }
-
-    commands_array_dump(commands_array);
 
     start_position_array_dtor(&command_start_positions);
 

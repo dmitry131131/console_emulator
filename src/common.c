@@ -96,5 +96,5 @@ void command_dump(const Command* command) {
     for (size_t i = 0; i < command->argument_count; i++) {
         printf("%s ", command->argument_list[i]);
     }
-    putchar('\n');
+    printf("\n\n");
 }

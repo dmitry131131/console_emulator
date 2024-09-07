@@ -3,6 +3,8 @@
 #include <string.h>
 #include <assert.h>
 
+#include "parser.h"
+
 const size_t INITIAL_CAPACITY = 5;
 
 typedef struct {
@@ -28,10 +30,16 @@ int console() {
 
     read_command(&cmd, line);
 
-    command_line_dump(&cmd);
+    CommandsArray commands_array = {};
+    parse_commands(cmd.argc, cmd.argv, &commands_array);
+
+    commands_array_dump(&commands_array);
+
+    commands_array_dtor(&commands_array);
+
+    // command_line_dump(&cmd);
 
     command_line_dtor(&cmd);
-
     free(line);
     
     return 0;
