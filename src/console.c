@@ -1,11 +1,15 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <unistd.h>
 #include <string.h>
 #include <assert.h>
+#include <readline/readline.h>
+#include <readline/history.h>
 
 #include "parser.h"
 
 const size_t INITIAL_CAPACITY = 5;
+const size_t MAX_DIR_LEN      = 2048;
 
 typedef struct {
     size_t argc;
@@ -19,28 +23,27 @@ static int command_line_dump(CommandLine* cmd);
 static int read_command(CommandLine* cmd, char* line);
 
 int console() {
-
     CommandLine cmd = {};
-    command_line_ctor(&cmd, INITIAL_CAPACITY);
-
-    char* line = NULL;
-    size_t n = 0;
-
-    getline(&line, &n, stdin);
-
-    read_command(&cmd, line);
-
     CommandsArray commands_array = {};
-    parse_commands(cmd.argc, cmd.argv, &commands_array);
 
-    commands_array_dump(&commands_array);
+    while (1) {
+        command_line_ctor(&cmd, INITIAL_CAPACITY);
 
-    commands_array_dtor(&commands_array);
+        const char* current_dir = getcwd(NULL, MAX_DIR_LEN);
 
-    // command_line_dump(&cmd);
+        char* line = readline(strcat(current_dir, " >> ")); // get line from console
+        add_history(line);
+        free(current_dir);
 
-    command_line_dtor(&cmd);
-    free(line);
+        read_command(&cmd, line);                               // tokenize command line
+        parse_commands(cmd.argc, cmd.argv, &commands_array);    // parse command line
+
+        commands_array_dump(&commands_array);
+
+        commands_array_dtor(&commands_array);   // Destruct all data structures of curren command line
+        command_line_dtor(&cmd);
+        free(line);
+    }
     
     return 0;
 }
@@ -84,9 +87,8 @@ static int command_line_dump(CommandLine* cmd) {
 static int read_command(CommandLine* cmd, char* line) {
     assert(cmd);
 
-    //printf("%s\n", line);
-
-    char* current_token = strtok(line, " ");;
+    char* current_token = strtok(line, " ");
+    if (!current_token) return 0;
 
     for (size_t i = 0;; i++) {
         cmd->argv[i] = current_token;

@@ -19,6 +19,8 @@ BuildPrefix = build/
 BuildFolder = build
 Include = -Iinclude
 
+Lib = -lreadline
+
 Sources = console.c parser.c common.c
 Main = main.c
 
@@ -37,7 +39,7 @@ $(BuildPrefix)%.o : $(SourcePrefix)%.c
 
 $(TARGET) : $(objects) $(MainObject)
 	@echo [CC] $^ -o $@
-	@$(CXX) $(CXXFLAGS) $(Include) $^ -o $@
+	@$(CXX) $(CXXFLAGS) $(Include) $(Lib) $^ -o $@
 
 clean :
 	rm $(BuildFolder)/*.o

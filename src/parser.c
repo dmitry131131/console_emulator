@@ -26,8 +26,8 @@ static int start_position_array_dtor(StartPositionArray* array);
 int parse_commands(int argc, char* argv[], CommandsArray* commands_array) {
     assert(argv);
     assert(commands_array);
-
-    assert(argc >= 1);  // TODO Make normal handling of few args error
+    
+    if (argc < 1) return 0;
 
     StartPositionArray command_start_positions = start_position_array_ctor((size_t) argc);
 
