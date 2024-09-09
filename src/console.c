@@ -41,8 +41,8 @@ int console() {
         read_command(&cmd, line);                               // tokenize command line
         parse_commands(cmd.argc, cmd.argv, &commands_array);    // parse command line
 
-        commands_array_dump(&commands_array);
-        // execute_commands(&commands_array);
+        // commands_array_dump(&commands_array);
+        execute_commands(&commands_array);
 
         commands_array_dtor(&commands_array);   // Destruct all data structures of curren command line
         command_line_dtor(&cmd);

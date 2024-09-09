@@ -16,18 +16,21 @@ static int execute_terminal_command(Command* command);
 int execute_commands(CommandsArray* commands_array) {
     assert(commands_array);
 
-    const pid_t child_pid = fork();
+    for (size_t i = 0; i < commands_array->commands_count; i++) {
 
-    if (child_pid < 0) { assert(0); }  // fork error
+        if (execute_terminal_command(&(commands_array->array[i]))) continue;
 
-    if (child_pid) {
-        int status = 0;
-        waitpid(child_pid, &status, 0);
-        printf("Exit status: %d\n", status);
-    }
-    else {
-        // execl("/bin/ls", "ls", NULL); // this is the code the child runs 
-        execute(&(commands_array->array[0]));
+        const pid_t child_pid = fork();
+        if (child_pid < 0) { assert(0); }  // fork error
+
+        if (child_pid) {
+            int status = 0;
+            waitpid(child_pid, &status, 0);
+        }
+        else {
+            // execl("/bin/ls", "ls", NULL); // this is the code the child runs 
+            execute(&(commands_array->array[i]));
+        }
     }
 
     return 0;
@@ -48,7 +51,7 @@ static int execute(Command* command) {
         args[i + 1] = command->argument_list[i];
     }
 
-    execv(path, args);
+    if (execv(path, args)) exit(0);
 
     free(args);
 
@@ -60,6 +63,14 @@ static int execute_terminal_command(Command* command) {
 
     if (!strcmp(command->command, "exit")) {
         exit(0);
+        return 1;
+    }
+    else if (!strcmp(command->command, "cd")) {
+        if (!command->argument_count) return 1;
+
+        chdir(command->argument_list[0]);
+
+        return 1;
     }
 
     return 0;

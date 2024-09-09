@@ -25,6 +25,16 @@ static int start_position_array_dtor(StartPositionArray* array);
 
 // TODO make full version with many commands support
 int parse_commands(size_t argc, char* argv[], CommandsArray* commands_array) {
+    #define ADD_SPLITTER_HANDLING(__TOKEN__, __SPLITTER__) do {                                                 \
+        if (!strcmp(argv[i], __TOKEN__)) {                                                                      \
+            command_start_positions.array[command_start_positions.current_pointer].end = i - 1;                 \
+            command_start_positions.array[command_start_positions.current_pointer].splitter = __SPLITTER__;     \
+                                                                                                                \
+            command_start_positions.current_pointer++;                                                          \
+            command_start_positions.array[command_start_positions.current_pointer].start = i + 1;               \
+        }                                                                                                       \
+    } while(0)                                                                                                  \
+
     assert(argv);
     assert(commands_array);
     
@@ -34,15 +44,9 @@ int parse_commands(size_t argc, char* argv[], CommandsArray* commands_array) {
 
     command_start_positions.array[command_start_positions.current_pointer].start    = 0;  
     command_start_positions.array[command_start_positions.current_pointer].splitter = NO_COMMAND_SPLITTER;
-    
     for (size_t i = 0; i < argc; i++) {
-        if (!strcmp(argv[i], AND_COMMAND_TOKEN)) {
-            command_start_positions.array[command_start_positions.current_pointer].end = i - 1;
-            command_start_positions.array[command_start_positions.current_pointer].splitter = AND_COMMAND_SPLITTER; // add and command splitter to element
-     
-            command_start_positions.current_pointer++;
-            command_start_positions.array[command_start_positions.current_pointer].start = i + 1;
-        }
+        ADD_SPLITTER_HANDLING(AND_COMMAND_TOKEN,  AND_COMMAND_SPLITTER);
+        ADD_SPLITTER_HANDLING(PIPE_COMMAND_TOKEN, PIPE_COMMAND_SPLITTER);
     }
     command_start_positions.array[command_start_positions.current_pointer].end = argc - 1;
     command_start_positions.current_pointer++;
@@ -61,6 +65,8 @@ int parse_commands(size_t argc, char* argv[], CommandsArray* commands_array) {
     start_position_array_dtor(&command_start_positions);
 
     return 0;
+
+    #undef ADD_SPLITTER_HANDLING
 }
 
 static StartPositionArray start_position_array_ctor(size_t capacity) {
