@@ -9,8 +9,9 @@ const char* AND_COMMAND_TOKEN  = "&&";
 const char* PIPE_COMMAND_TOKEN = "|";
 
 typedef struct {
-    size_t start;
-    size_t end;
+    size_t           start;
+    size_t           end;
+    CommandsSplitter splitter;
 } Pair;
 
 typedef struct {
@@ -31,11 +32,13 @@ int parse_commands(size_t argc, char* argv[], CommandsArray* commands_array) {
 
     StartPositionArray command_start_positions = start_position_array_ctor(argc);
 
-    command_start_positions.array[command_start_positions.current_pointer].start = 0;  
+    command_start_positions.array[command_start_positions.current_pointer].start    = 0;  
+    command_start_positions.array[command_start_positions.current_pointer].splitter = NO_COMMAND_SPLITTER;
     
     for (size_t i = 0; i < argc; i++) {
         if (!strcmp(argv[i], AND_COMMAND_TOKEN)) {
             command_start_positions.array[command_start_positions.current_pointer].end = i - 1;
+            command_start_positions.array[command_start_positions.current_pointer].splitter = AND_COMMAND_SPLITTER; // add and command splitter to element
      
             command_start_positions.current_pointer++;
             command_start_positions.array[command_start_positions.current_pointer].start = i + 1;
@@ -51,7 +54,8 @@ int parse_commands(size_t argc, char* argv[], CommandsArray* commands_array) {
     for (size_t i = 0; i < command_start_positions.current_pointer; i++) {
         commands_array_add( commands_array,
                             argv + command_start_positions.array[i].start, 
-                            command_start_positions.array[i].end - command_start_positions.array[i].start);
+                            command_start_positions.array[i].end - command_start_positions.array[i].start,
+                            command_start_positions.array[i].splitter);
     }
 
     start_position_array_dtor(&command_start_positions);

@@ -34,11 +34,11 @@ int commands_array_dtor(CommandsArray* commands_array) {
     return 0;
 }
 
-int commands_array_add(CommandsArray* commands_array, char** command, size_t argument_count) {
+int commands_array_add(CommandsArray* commands_array, char** command, size_t argument_count, CommandsSplitter splitter) {
     assert(commands_array);
     assert(command);
 
-    command_ctor(&(commands_array->array[commands_array->commands_count]), command, argument_count);
+    command_ctor(&(commands_array->array[commands_array->commands_count]), command, argument_count, splitter);
 
     (commands_array->commands_count)++;
 
@@ -59,12 +59,13 @@ void commands_array_dump(const CommandsArray* commands_array) {
 
 //-----------------------------------> COMMAND FUNCTIONS <------------------------------//
 
-int command_ctor(Command* command, char** command_text, size_t argument_count) {
+int command_ctor(Command* command, char** command_text, size_t argument_count, CommandsSplitter splitter) {
     assert(command);
     assert(command_text);
 
-    command->argument_count = argument_count;
-    command->command = command_text[0];
+    command->argument_count = argument_count;   // initialize command
+    command->command        = command_text[0];
+    command->splitter       = splitter;
 
     command->argument_list = (char**) calloc(argument_count + 1, sizeof(char*));
     if (!(command->argument_list)) return 1;
@@ -84,6 +85,7 @@ int command_dtor(Command* command) {
     free(command->argument_list);
     command->argument_count = 0;
     command->command        = NULL;
+    command->splitter       = NO_COMMAND_SPLITTER;
 
     return 0;
 }
@@ -91,8 +93,9 @@ int command_dtor(Command* command) {
 void command_dump(const Command* command) {
     assert(command);
 
-    printf("COMMAND: %s\n",    command->command);
-    printf("ARG COUNT: %lu\n", command->argument_count);
+    printf("COMMAND: %s\n",          command->command);
+    printf("ARG COUNT: %lu\n",       command->argument_count);
+    printf("COMMAND SPLITTER: %u\n", command->splitter);
     printf("ARGS: ");
 
     for (size_t i = 0; i < command->argument_count; i++) {

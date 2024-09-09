@@ -1,5 +1,5 @@
 CXX = gcc
-CXXFLAGS =  -D _DEBUG -ggdb3 -O0 -Wall -Wextra -Waggressive-loop-optimizations \
+CXXFLAGS =  -D _DEBUG -ggdb3 -std=c17 -O0 -Wall -Wextra -Waggressive-loop-optimizations \
  		    -Wmissing-declarations -Wcast-align -Wcast-qual -Wchar-subscripts \
   			-Wconversion -Wempty-body -Wfloat-equal -Wformat-nonliteral -Wformat-security \
    			-Wformat-signedness -Wformat=2 -Winline -Wlogical-op -Wopenmp-simd \

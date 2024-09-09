@@ -10,6 +10,7 @@
 #define MAX_PATH_LEN 1024
 
 static int execute(Command* command);
+static int execute_terminal_command(Command* command);
 
 // TODO support running many commands
 int execute_commands(CommandsArray* commands_array) {
@@ -50,6 +51,16 @@ static int execute(Command* command) {
     execv(path, args);
 
     free(args);
+
+    return 0;
+}
+
+static int execute_terminal_command(Command* command) {
+    assert(command);
+
+    if (!strcmp(command->command, "exit")) {
+        exit(0);
+    }
 
     return 0;
 }
