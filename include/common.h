@@ -10,15 +10,17 @@ typedef enum {
     BACKGROUND_COMMAND_SPLITTER
 } CommandsSplitter;
 
-typedef struct {
-    char*            command;
-    size_t           argument_count;
-    char**           argument_list;
-    CommandsSplitter splitter;
+typedef struct __Command__ {
+    char*               command;
+    size_t              argument_count;
+    char**              argument_list;
+    CommandsSplitter    splitter;
+    struct __Command__* next;
+    struct __Command__* prev;
 } Command;
 
 typedef struct {
-    Command* array;
+    Command*       array;
     size_t         commands_count;
     size_t         commands_capacity;
 } CommandsArray;
@@ -28,8 +30,8 @@ int commands_array_dtor(CommandsArray* commands_array);
 int commands_array_add(CommandsArray* commands_array, char** command, size_t argument_count, CommandsSplitter splitter);
 void commands_array_dump(const CommandsArray* commands_array);
 
-int command_ctor(Command* command, char** command_text, size_t argument_count, CommandsSplitter splitter);
-int command_dtor(Command* command);
-void command_dump(const Command* command);
+CommandsSplitter get_prev_splitter(Command* command);
+CommandsSplitter get_splitter(Command* command);
+void pipe_swap(int first[2], int second[2]);
 
 #endif

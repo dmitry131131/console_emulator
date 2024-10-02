@@ -13,7 +13,7 @@ CXXFLAGS =  -D _DEBUG -ggdb3 -std=c17 -O0 -Wall -Wextra -Waggressive-loop-optimi
 			-fsanitize=address,alignment,bool,bounds,enum,float-cast-overflow,float-divide-by-zero,integer-divide-by-zero,leak,nonnull-attribute,null,object-size,return,returns-nonnull-attribute,shift,signed-integer-overflow,undefined,unreachable,vla-bound,vptr
 #-O3 -march=core-avx2
 
-TARGET = cons
+TARGET = console
 SourcePrefix = src/
 BuildPrefix = build/
 BuildFolder = build
@@ -31,8 +31,15 @@ objects = $(patsubst $(SourcePrefix)%.c, $(BuildPrefix)%.o, $(Source))
 
 .PHONY : all clean folder
 
-all : folder $(TARGET)
-	
+all : release
+
+release : CXXFLAGS = -O2 -std=c17
+release : folder $(TARGET)
+	@echo "[Release mode]"
+
+debug : folder $(TARGET)
+	@echo "[Debug mode]"
+
 $(BuildPrefix)%.o : $(SourcePrefix)%.c
 	@echo [CXX] -c $< -o $@
 	@$(CXX) $(CXXFLAGS) $(Include) -c $< -o $@
